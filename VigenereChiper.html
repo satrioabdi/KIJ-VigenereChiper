@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vigenere Cipher</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        function textToBits(text) {
+            // Mengonversi teks ke representasi bit
+            return Array.from(text).map(char => char.charCodeAt(0).toString(2).padStart(8, '0')).join('');
+        }
+
+        function bitsToText(bits) {
+            // Mengonversi representasi bit ke teks
+            return bits.match(/.{8}/g).map(bit => String.fromCharCode(parseInt(bit, 2))).join('');
+        }
+
+        function vigenereEncrypt(plaintext, key) {
+            if (plaintext.length < 6 || key.length < 6) {
+                alert("Plaintext dan kunci harus lebih dari 5 karakter!");
+                return;
+            }
+
+            const plaintextBits = textToBits(plaintext);
+            const keyBits = textToBits(key);
+
+            let encryptedBits = "";
+            for (let i = 0; i < plaintextBits.length; i++) {
+                // Mendapatkan karakter kunci yang sesuai untuk operasi XOR
+                const keyChar = keyBits[i % keyBits.length];
+
+                // Operasi XOR bit per bit antara plaintext dan kunci
+                const bit = (plaintextBits[i] ^ keyChar).toString();
+                encryptedBits += bit;
+            }
+
+            return encryptedBits;
+        }
+
+        function vigenereDecrypt(ciphertextBits, key) {
+            if (ciphertextBits.length % 8 !== 0 || key.length < 6) {
+                alert("Ciphertext harus dalam format bit dan kunci harus lebih dari 5 karakter!");
+                return;
+            }
+
+            const keyBits = textToBits(key);
+
+            let decryptedBits = "";
+            for (let i = 0; i < ciphertextBits.length; i++) {
+                // Mendapatkan karakter kunci yang sesuai untuk operasi XOR
+                const keyChar = keyBits[i % keyBits.length];
+
+                // Operasi XOR bit per bit antara ciphertext dan kunci
+                const bit = (ciphertextBits[i] ^ keyChar).toString();
+                decryptedBits += bit;
+            }
+
+            return decryptedBits;
+        }
+
+        function performEncryption() {
+            const plaintext = document.getElementById("plaintext").value;
+            const key = document.getElementById("key").value;
+
+            const encryptedBits = vigenereEncrypt(plaintext, key);
+
+            if (encryptedBits) {
+                document.getElementById("outputPlaintext").textContent = "Plaintext (teks): " + plaintext;
+                document.getElementById("outputPlaintextBits").textContent = "Plaintext (bit): " + textToBits(plaintext);
+                document.getElementById("outputKey").textContent = "Kunci (teks): " + key;
+                document.getElementById("outputKeyBits").textContent = "Kunci (bit): " + textToBits(key);
+                document.getElementById("outputEncryptionBits").textContent = "Hasil Enkripsi (bit): " + encryptedBits;
+                document.getElementById("outputEncryptionText").textContent = "Hasil Enkripsi (teks): "; // Tidak ada teks yang ditampilkan pada hasil enkripsi
+            }
+        }
+
+        function performDecryption() {
+            const ciphertextBits = document.getElementById("ciphertextBits").value;
+            const key = document.getElementById("decryptionKey").value;
+
+            const decryptedBits = vigenereDecrypt(ciphertextBits, key);
+
+            if (decryptedBits) {
+                const decryptedText = bitsToText(decryptedBits);
+                document.getElementById("outputCiphertextBits").textContent = "Ciphertext (bit): " + ciphertextBits;
+                document.getElementById("outputKeyDecryption").textContent = "Kunci (teks): " + key;
+                document.getElementById("outputKeyBitsDecryption").textContent = "Kunci (bit): " + textToBits(key);
+                document.getElementById("outputDecryptionBits").textContent = "Hasil Dekripsi (bit): " + decryptedBits;
+                document.getElementById("outputDecryptionText").textContent = "Hasil Dekripsi (teks): " + decryptedText;
+            }
+        }
+
+        function resetFields(mode) {
+            if (mode === 'encryption') {
+                document.getElementById("plaintext").value = "";
+                document.getElementById("key").value = "";
+                document.getElementById("outputPlaintext").textContent = "";
+                document.getElementById("outputPlaintextBits").textContent = "";
+                document.getElementById("outputKey").textContent = "";
+                document.getElementById("outputKeyBits").textContent = "";
+                document.getElementById("outputEncryptionBits").textContent = "";
+                document.getElementById("outputEncryptionText").textContent = "";
+            } else if (mode === 'decryption') {
+                document.getElementById("ciphertextBits").value = "";
+                document.getElementById("decryptionKey").value = "";
+                document.getElementById("outputCiphertextBits").textContent = "";
+                document.getElementById("outputKeyDecryption").textContent = "";
+                document.getElementById("outputKeyBitsDecryption").textContent = "";
+                document.getElementById("outputDecryptionBits").textContent = "";
+                document.getElementById("outputDecryptionText").textContent = "";
+            }
+        }
+
+    </script>
+</head>
+<body>
+    <h1>Vigenere Cipher</h1>
+    <h2>Enkripsi</h2>
+    <label for="plaintext">Masukkan plaintext (teks):</label><br>
+    <input type="text" id="plaintext"><br>
+    <label for="key">Masukkan kunci (teks):</label><br>
+    <input type="text" id="key"><br>
+    <button onclick="performEncryption()">Enkripsi</button><br><br>
+    <button onclick="resetFields('encryption')">Reset</button><br><br>
+    <div id="outputPlaintext"></div>
+    <div id="outputPlaintextBits"></div>
+    <div id="outputKey"></div>
+    <div id="outputKeyBits"></div>
+    <div id="outputEncryptionBits"></div>
+    <div id="outputEncryptionText"></div>
+
+    <h2>Dekripsi</h2>
+    <label for="ciphertextBits">Masukkan ciphertext (bit):</label><br>
+    <input type="text" id="ciphertextBits"><br>
+    <label for="decryptionKey">Masukkan kunci (teks):</label><br>
+    <input type="text" id="decryptionKey"><br>
+    <button onclick="performDecryption()">Dekripsi</button><br><br>
+    <button onclick="resetFields('decryption')">Reset</button><br><br>
+    <div id="outputCiphertextBits"></div>
+    <div id="outputKeyDecryption"></div>
+    <div id="outputKeyBitsDecryption"></div>
+    <div id="outputDecryptionBits"></div>
+    <div id="outputDecryptionText"></div>
+</body>
+</html>
